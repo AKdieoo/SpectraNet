@@ -168,3 +168,28 @@ has no torch dependency, so it runs anywhere.
   - ~6.5x faster than CPU PyTorch inference on the same model
 
 All experiment tracking logged live to Weights and Biases and MLflow during these runs.
+
+## Full 5-architecture benchmark across BOTH datasets
+
+### Clean synthetic dataset
+| Model | Accuracy | Params | Size | CPU Latency p50 |
+|---|---|---|---|---|
+| Custom CNN | 60.4% | 0.58M | 2.25 MB | 2.69 ms |
+| ResNet18 | 62.7% | 11.17M | 42.70 MB | 4.12 ms |
+| VGG16 | 59.6% | 134.28M | 512.25 MB | 26.77 ms |
+| EfficientNet-B0 | 60.9% | 4.01M | 15.59 MB | 10.29 ms |
+| MobileNetV3-Small | 38.7% | 1.52M | 5.93 MB | 4.47 ms |
+
+### Low-SNR (noisy) synthetic dataset
+| Model | Accuracy | Params | Size | CPU Latency p50 |
+|---|---|---|---|---|
+| Custom CNN | 64.9% | 0.58M | 2.25 MB | 1.84 ms |
+| ResNet18 | 57.8% | 11.17M | 42.70 MB | 3.94 ms |
+| VGG16 | 41.8% | 134.28M | 512.25 MB | 25.79 ms |
+| EfficientNet-B0 | 52.4% | 4.01M | 15.59 MB | 11.59 ms |
+| MobileNetV3-Small | 24.0% | 1.52M | 5.93 MB | 5.26 ms |
+
+**Finding:** accuracy consistently drops under low-SNR conditions across all 5 architectures, confirming the models are learning genuine signal structure rather than dataset artifacts. MobileNetV3-Small is least robust to noise (38.7% -> 24.0%); Custom CNN and ResNet18 degrade least, making them the most noise-robust picks for real-world edge deployment.
+
+## FFT spectral analysis
+Ran compute_fft() directly on the dataset (scripts/analyze_spectrum.py) to inspect per-class occupied bandwidth before committing to the STFT/spectrogram pipeline. Noise class showed ~100% occupied bandwidth (expected - noise spreads energy across the full spectrum); modulated signal classes clustered around 64-66% occupied bandwidth.

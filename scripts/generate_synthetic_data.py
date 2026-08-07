@@ -1,5 +1,6 @@
-﻿"""Generate a small SYNTHETIC RF dataset so you can run the whole SpectraNet
-pipeline end-to-end right now, without needing a real dataset yet."""
+"""Generate a small SYNTHETIC RF dataset for SpectraNet. Supports a
+--noise-scale flag so you can create multiple dataset variants (clean
+vs. low-SNR/noisy) to test cross-dataset generalization."""
 
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ def make_symbols(n_symbols, constellation, rng):
     return constellation[idx]
 
 
-def modulate(class_name, rng):
+def modulate(class_name, rng, noise_scale=0.05):
     if class_name == "bpsk":
         const = np.array([1 + 0j, -1 + 0j])
         symbols = make_symbols(SEQ_LEN // 8, const, rng)
@@ -47,7 +48,7 @@ def modulate(class_name, rng):
     t = np.arange(SEQ_LEN) / SAMPLE_RATE
     cfo = rng.uniform(-0.01, 0.01)
     iq = iq * np.exp(1j * 2 * np.pi * cfo * t)
-    noise = (rng.normal(size=SEQ_LEN) + 1j * rng.normal(size=SEQ_LEN)) * 0.05
+    noise = (rng.normal(size=SEQ_LEN) + 1j * rng.normal(size=SEQ_LEN)) * noise_scale
     iq = iq + noise
 
     return iq.astype(np.complex64)
@@ -58,6 +59,7 @@ def main():
     parser.add_argument("--out", type=str, default="data/processed")
     parser.add_argument("--n-per-class", type=int, default=200)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--noise-scale", type=float, default=0.05)
     args = parser.parse_args()
 
     classes = ["bpsk", "qpsk", "psk8", "qam16", "noise"]
@@ -68,11 +70,12 @@ def main():
         class_dir = root / class_name
         class_dir.mkdir(parents=True, exist_ok=True)
         for i in range(args.n_per_class):
-            iq = modulate(class_name, rng)
+            iq = modulate(class_name, rng, noise_scale=args.noise_scale)
             np.save(class_dir / f"sample_{i:04d}.npy", iq)
         print(f"Generated {args.n_per_class} samples for class '{class_name}'")
 
     print(f"\nDone. Synthetic dataset written to: {Path(args.out).resolve()}")
+    print(f"Noise scale used: {args.noise_scale}")
     print("Next: run scripts/build_index.py to create train.csv / val.csv")
 
 

@@ -11,3 +11,4 @@ benchmark_results.csv
 *.trt
 .pytest_cache/
 mlflow.db
+data/processed_lowsnr/
