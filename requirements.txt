@@ -1,0 +1,21 @@
+# Core
+numpy>=1.24
+torch>=2.1
+torchvision>=0.16
+pyyaml>=6.0
+tqdm>=4.66
+
+# Experiment tracking
+wandb>=0.16
+mlflow>=2.9
+
+# Edge deployment
+onnx>=1.15
+onnxruntime>=1.16
+# tensorrt and pycuda are NOT pip-installable on all platforms;
+# install via NVIDIA's TensorRT SDK / Jetson JetPack on the target device.
+# tensorrt>=8.6
+# pycuda>=2022.2
+
+# Dev / testing
+pytest>=7.4

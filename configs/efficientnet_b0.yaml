@@ -1,0 +1,27 @@
+model_name: efficientnet_b0
+data_root: data/processed
+train_index: train.csv
+val_index: val.csv
+in_channels: 1
+num_classes: 5
+pretrained: true
+
+batch_size: 32
+epochs: 6
+lr: 0.0005
+weight_decay: 0.0001
+scheduler: cosine
+label_smoothing: 0.05
+num_workers: 0
+
+use_wandb: false
+use_mlflow: true
+wandb_project: spectranet
+mlflow_experiment: spectranet
+
+checkpoint_dir: checkpoints
+early_stopping_patience: 8
+use_raw_iq: true
+augment: true
+seed: 42
+run_name: efficientnet_b0_v1

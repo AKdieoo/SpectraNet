@@ -1,0 +1,8 @@
+[project]
+name = "spectranet"
+version = "0.1.0"
+description = "AI platform for RF threat classification and edge inference"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+wandb/
+mlruns/
+checkpoints/
+exported/
+data/processed/
+benchmark_results.csv
+*.onnx
+*.trt
+.pytest_cache/
+mlflow.db
