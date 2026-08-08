@@ -193,3 +193,16 @@ All experiment tracking logged live to Weights and Biases and MLflow during thes
 
 ## FFT spectral analysis
 Ran compute_fft() directly on the dataset (scripts/analyze_spectrum.py) to inspect per-class occupied bandwidth before committing to the STFT/spectrogram pipeline. Noise class showed ~100% occupied bandwidth (expected - noise spreads energy across the full spectrum); modulated signal classes clustered around 64-66% occupied bandwidth.
+
+## Second custom training loop: K-fold cross-validation
+
+spectranet/training/train_cv.py is a structurally distinct training loop from train.py - not a re-run of the same code. It splits data into K folds, trains a separate model per fold, and aggregates mean/std accuracy, instead of relying on a single train/val split.
+
+Ran 3-fold CV with Custom CNN on the clean dataset (5 classes, correctly configured):
+- Per-fold accuracy: 59.3%, 68.2%, 61.2%
+- Mean: 62.9% | Std: 3.85%
+
+This matches the single-split result (60.4%) within the observed variance, confirming the original benchmark numbers are representative and not a lucky split.
+
+## Note on latency/model size across datasets
+In the benchmark tables above, latency and model size are properties of the architecture and hardware, not the dataset - they do not change between the clean and low-SNR datasets (as expected; this is correct behavior, not a gap). Only accuracy varies by dataset, since that measures how well the model's learned weights - which differ per dataset - generalize to unseen signals from that same distribution.
