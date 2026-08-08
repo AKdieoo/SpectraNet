@@ -13,3 +13,4 @@ benchmark_results.csv
 mlflow.db
 data/processed_lowsnr/
 data/threat/
+*.data

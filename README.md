@@ -214,3 +214,25 @@ scripts/generate_threat_dataset.py builds a real binary threat-detection dataset
 **First attempt caught and fixed a real data leakage bug:** the initial jammer generator made threats 2-6x louder than benign signals, so the model hit 100% accuracy by trivially detecting loudness rather than learning waveform structure. Fixed by power-matching all classes to ~1.0 average power (verified numerically), then retrained.
 
 **After the fix:** ResNet18 still reaches 100% val accuracy on threat vs benign - and this is a legitimate result, not a leftover shortcut: the four signal shapes remain fundamentally distinct in a spectrogram even at matched power (chirp sweep vs flat wideband noise vs on/off bursts vs steady narrowband modulation), so this genuinely is an easy binary decision. This matches real-world RF security practice - detecting that a signal IS a jamming attack is normally straightforward; the harder, more nuanced task is classifying WHICH modulation type a legitimate signal is (the earlier 5-class task in this repo, which the models solved at a more realistic 60-65% accuracy).
+
+## Edge Inference validation (done entirely on this laptop, no physical edge device)
+
+No physical edge device (Jetson/RPi/phone) was available, so edge-inference readiness was validated honestly via two real, standard techniques instead of claiming untested hardware:
+
+### 1. INT8 quantization (real model compression)
+Both dynamic and static quantization were tried and compared:
+
+| Model | Method | Size reduction | Speed vs FP32 (single-thread CPU) |
+|---|---|---|---|
+| Custom CNN | Dynamic INT8 | 74.5% smaller | 0.07x (SLOWER) |
+| Custom CNN | Static INT8 (calibrated) | 74.3% smaller | 2.99x faster |
+| ResNet18 | Dynamic INT8 | 74.9% smaller | 0.09x (SLOWER) |
+| ResNet18 | Static INT8 (calibrated) | 74.8% smaller | 1.28x faster |
+
+**Finding:** dynamic quantization made both CNN models slower despite big size savings. This matches ONNX Runtime's own official documentation, which states dynamic quantization is recommended for RNN/transformer models, and static (calibrated) quantization is recommended for CNNs (source: onnxruntime.ai/docs/performance/model-optimizations/quantization.html). Switching to static quantization - calibrated using 100 real samples from the actual training set - fixed this and gave genuine speedups on both architectures, confirming the documented guidance.
+
+### 2. Single-thread CPU benchmarking (approximates edge resource constraints)
+All benchmarks above ran with intra_op_num_threads=1 / inter_op_num_threads=1, deliberately removing the multi-core parallelism a full laptop CPU normally provides - a standard way to approximate the compute budget of a small edge device (e.g. a Cortex-A-class embedded board) when the actual target hardware isn't available.
+
+### Honest scope
+This validates the deployment ARTIFACTS (ONNX + quantized ONNX) and the OPTIMIZATION TECHNIQUE (calibrated INT8 quantization) genuinely and correctly. It does not claim to have run on physical edge silicon - that would require actual hardware (Jetson/RPi/etc), which was not available. The TensorRT engine (separately built and benchmarked on a real NVIDIA T4 GPU via Google Colab, see above) is the artifact that would run unchanged on an NVIDIA Jetson edge accelerator, since Jetson and datacenter GPUs share the same TensorRT toolchain.
