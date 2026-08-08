@@ -12,3 +12,4 @@ benchmark_results.csv
 .pytest_cache/
 mlflow.db
 data/processed_lowsnr/
+data/threat/
