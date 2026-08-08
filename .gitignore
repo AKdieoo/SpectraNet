@@ -14,3 +14,4 @@ mlflow.db
 data/processed_lowsnr/
 data/threat/
 *.data
+data/processed_spec/
