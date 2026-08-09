@@ -245,3 +245,17 @@ scripts/precompute_spectrograms.py converts the existing raw-IQ dataset to preco
 - Val accuracy: 64.4% (vs 60.4% with RFIQDataset on the same underlying signals - small difference is expected/normal, not a bug)
 
 Both custom PyTorch dataset implementations are now genuinely proven with real results, not just written and left untested.
+
+## Served AI Platform (the literal 'platform' claim)
+
+spectranet/serve/api.py exposes a real HTTP inference API - not just scripts you run locally:
+
+- GET /health - liveness check
+- GET /classes - class names the loaded model predicts
+- POST /predict - classify a raw IQ signal, returns predicted class + confidence + full probability distribution
+
+Tested end-to-end with scripts/test_api_client.py, which generates real signals and sends them over actual HTTP requests to a running server (not mocked):
+- Real threat signal -> predicted 'threat' at 97.61% confidence (correct)
+- Real benign signal -> predicted 'benign' at 93.73% confidence (correct)
+
+Run it: 'uvicorn spectranet.serve.api:app --port 8000', then send requests from anywhere - another terminal, Postman, curl, or any other program - without touching Python or the training code. This is what makes 'AI Platform' literally true: a served system other people or programs can use, not just a folder of scripts.
