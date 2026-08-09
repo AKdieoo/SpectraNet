@@ -2,8 +2,8 @@
 
 **AI platform for RF threat classification and edge inference.**
 
-End-to-end pipeline: raw IQ → preprocessing/augmentation → CNN training with
-experiment tracking → benchmarking across architectures → ONNX/TensorRT
+End-to-end pipeline: raw IQ ??? preprocessing/augmentation ??? CNN training with
+experiment tracking ??? benchmarking across architectures ??? ONNX/TensorRT
 export for edge deployment.
 
 Stack: PyTorch, NumPy, ONNX, TensorRT, Weights & Biases, MLflow.
@@ -41,7 +41,7 @@ data/processed/samples/<class_name>/*.npy
 where each `.npy` holds a complex IQ vector (or a `(2, N)` real I/Q array).
 This mirrors common RF datasets (RadioML-style captures, SigMF exports,
 GNU Radio dumps) closely enough that swapping in real data is mostly a
-matter of pointing at your files — `load_index()` in `dataset.py` is the
+matter of pointing at your files ??? `load_index()` in `dataset.py` is the
 single place to override if your index format differs.
 
 ```bash
@@ -52,11 +52,11 @@ python scripts/build_index.py --data-root data/processed --val-fraction 0.15
 
 `spectranet/data/preprocessing.py` implements, in pure NumPy:
 
-- **IQ normalization** — z-score, unit-energy, or peak normalization
-- **FFT / STFT** — hand-rolled short-time Fourier transform (Hann/Hamming/rect windows)
-- **Spectrogram generation** — log-magnitude, min-max scaled to `[0, 1]`; optional
+- **IQ normalization** ??? z-score, unit-energy, or peak normalization
+- **FFT / STFT** ??? hand-rolled short-time Fourier transform (Hann/Hamming/rect windows)
+- **Spectrogram generation** ??? log-magnitude, min-max scaled to `[0, 1]`; optional
   2-channel magnitude+phase-derivative variant
-- **RF-specific augmentation** — AWGN injection at a target SNR, random carrier
+- **RF-specific augmentation** ??? AWGN injection at a target SNR, random carrier
   frequency offset (CFO), random phase rotation, random time shift, and
   SpecAugment-style time/frequency masking on the spectrogram itself
 
@@ -109,7 +109,7 @@ python -m spectranet.deploy.export_onnx \
 match the PyTorch model within tolerance.
 
 **2. Build a TensorRT engine** (run on your edge target / a machine with a
-matching TensorRT install — e.g. Jetson Orin via JetPack):
+matching TensorRT install ??? e.g. Jetson Orin via JetPack):
 
 ```bash
 python -m spectranet.deploy.export_tensorrt \
@@ -134,9 +134,9 @@ has no torch dependency, so it runs anywhere.
 ## Notes / assumptions
 
 - Default spectrogram size in examples is `128x128` (`n_fft=128, hop_length` tuned
-  to your burst length) — adjust `--input-shape` / config to match your actual data.
+  to your burst length) ??? adjust `--input-shape` / config to match your actual data.
 - `num_classes` defaults to `11` in the example configs (a common RadioML-style
-  modulation count) — set this to match your actual label set.
+  modulation count) ??? set this to match your actual label set.
 - Backbone first-conv layers are automatically adapted from 3-channel RGB to
   1- or 2-channel spectrogram input, with pretrained ImageNet weights
   channel-averaged as the init (`models/zoo.py::_replace_first_conv`) so
@@ -276,8 +276,9 @@ Tested with 6 consecutive real detections: 6/6 correct, with threat signals cons
 
 **Real-time threat detection:**
 
-![Threat detected](docs/screenshots/dashboard_detection.png)
+![Threat detected](docs/screenshots/dashboard_log.png)
 
 **Detection log - 6/6 correct across alternating benign/threat signals:**
 
-![Detection log](docs/screenshots/dashboard_log.png)
+![Detection log](docs/screenshots/dashboard_detection.png)
+
