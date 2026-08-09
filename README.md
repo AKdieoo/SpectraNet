@@ -267,3 +267,17 @@ spectranet/serve/api.py + scripts/live_dashboard.py together form a real live da
 Honest scope: this is a SIMULATED live feed (no SDR hardware means no real captured airwaves), and labels shown are the model's actual trained classes (benign/threat), not generic consumer protocol names like WiFi/Bluetooth, which this project's models were never trained to recognize.
 
 Tested with 6 consecutive real detections: 6/6 correct, with threat signals consistently scoring 97-98/100 and benign signals consistently scoring 5-9/100 - a clean, confident separation matching the model's real validation accuracy.
+
+## Screenshots
+
+**Connected and ready:**
+
+![Dashboard connected](docs/screenshots/dashboard.png)
+
+**Real-time threat detection:**
+
+![Threat detected](docs/screenshots/dashboard_detection.png)
+
+**Detection log - 6/6 correct across alternating benign/threat signals:**
+
+![Detection log](docs/screenshots/dashboard_log.png)
