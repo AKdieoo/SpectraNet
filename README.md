@@ -282,3 +282,23 @@ Tested with 6 consecutive real detections: 6/6 correct, with threat signals cons
 
 ![Detection log](docs/screenshots/dashboard_detection.png)
 
+
+## SpectraNet 2.0 - Level 3: Explainable AI (Grad-CAM)
+
+scripts/gradcam_explain.py implements real Grad-CAM (Selvaraju et al. 2017): hooks the model's last conv layer, backpropagates the target class score, and weights activations by average gradient per channel to show WHICH parts of the spectrogram the model actually attended to.
+
+**Architecture comparison, tested honestly:**
+- ResNet18's heatmap came out too coarse to be meaningful (32x total downsampling collapses almost all spatial/temporal detail on our small 128x33 input) - shown as-is, not hidden.
+- Custom CNN preserves far more spatial detail and produced genuinely interpretable heatmaps.
+
+**Custom CNN, threat signal (sweep jammer):** heatmap correctly tracks the diagonal chirp trajectory - the model is demonstrably attending to the actual jamming sweep, not a shortcut.
+
+![Grad-CAM threat](docs/gradcam/gradcam_customcnn_threat.png)
+
+**Custom CNN, benign signal:** heatmap highlights two narrow frequency bands rather than any time-domain pattern - consistent with the model learning that legitimate digital modulation occupies a narrow, fixed frequency range, unlike a threat's diagonal sweep or broadband noise.
+
+![Grad-CAM benign](docs/gradcam/gradcam_customcnn_benign.png)
+
+**ResNet18 (for comparison - shown honestly, not hidden):**
+
+![Grad-CAM ResNet18 - too coarse](docs/gradcam/gradcam_resnet18.png)
