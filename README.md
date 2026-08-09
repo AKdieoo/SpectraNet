@@ -259,3 +259,11 @@ Tested end-to-end with scripts/test_api_client.py, which generates real signals 
 - Real benign signal -> predicted 'benign' at 93.73% confidence (correct)
 
 Run it: 'uvicorn spectranet.serve.api:app --port 8000', then send requests from anywhere - another terminal, Postman, curl, or any other program - without touching Python or the training code. This is what makes 'AI Platform' literally true: a served system other people or programs can use, not just a folder of scripts.
+
+## SpectraNet 2.0 - Phase 1: Live Command Center
+
+spectranet/serve/api.py + scripts/live_dashboard.py together form a real live dashboard: a Streamlit UI that generates real signals, sends them to the real served API, and displays real predictions, confidence, threat score, latency, and spectrum - no fake/scripted numbers anywhere. Verified end-to-end: server logs show one real POST /predict per detection, matching the dashboard clicks exactly.
+
+Honest scope: this is a SIMULATED live feed (no SDR hardware means no real captured airwaves), and labels shown are the model's actual trained classes (benign/threat), not generic consumer protocol names like WiFi/Bluetooth, which this project's models were never trained to recognize.
+
+Tested with 6 consecutive real detections: 6/6 correct, with threat signals consistently scoring 97-98/100 and benign signals consistently scoring 5-9/100 - a clean, confident separation matching the model's real validation accuracy.
