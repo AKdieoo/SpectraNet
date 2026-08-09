@@ -260,7 +260,7 @@ Tested end-to-end with scripts/test_api_client.py, which generates real signals 
 
 Run it: 'uvicorn spectranet.serve.api:app --port 8000', then send requests from anywhere - another terminal, Postman, curl, or any other program - without touching Python or the training code. This is what makes 'AI Platform' literally true: a served system other people or programs can use, not just a folder of scripts.
 
-## SpectraNet 2.0 - Phase 1: Live Command Center
+## SpectraNet 2.0 Feature: Live Command Center
 
 spectranet/serve/api.py + scripts/live_dashboard.py together form a real live dashboard: a Streamlit UI that generates real signals, sends them to the real served API, and displays real predictions, confidence, threat score, latency, and spectrum - no fake/scripted numbers anywhere. Verified end-to-end: server logs show one real POST /predict per detection, matching the dashboard clicks exactly.
 
@@ -283,7 +283,7 @@ Tested with 6 consecutive real detections: 6/6 correct, with threat signals cons
 ![Detection log](docs/screenshots/dashboard_detection.png)
 
 
-## SpectraNet 2.0 - Level 3: Explainable AI (Grad-CAM)
+## SpectraNet 2.0 Feature: Explainable AI (Grad-CAM)
 
 scripts/gradcam_explain.py implements real Grad-CAM (Selvaraju et al. 2017): hooks the model's last conv layer, backpropagates the target class score, and weights activations by average gradient per channel to show WHICH parts of the spectrogram the model actually attended to.
 
@@ -302,3 +302,8 @@ scripts/gradcam_explain.py implements real Grad-CAM (Selvaraju et al. 2017): hoo
 **ResNet18 (for comparison - shown honestly, not hidden):**
 
 ![Grad-CAM ResNet18 - too coarse](docs/gradcam/gradcam_resnet18.png)
+
+
+## SpectraNet 2.0 Roadmap Status
+
+Two features built and verified so far: the Live Command Center and Explainable AI (Grad-CAM). Other roadmap ideas (AI Copilot, open-set/unknown-signal detection, multi-emitter detection, Digital RF Twin, natural language search, and others) are not yet built. Nothing was skipped silently - this section exists specifically so the repo's current state is always clear at a glance.
