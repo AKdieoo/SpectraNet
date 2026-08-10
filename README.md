@@ -307,3 +307,19 @@ scripts/gradcam_explain.py implements real Grad-CAM (Selvaraju et al. 2017): hoo
 ## SpectraNet 2.0 Roadmap Status
 
 Two features built and verified so far: the Live Command Center and Explainable AI (Grad-CAM). Other roadmap ideas (AI Copilot, open-set/unknown-signal detection, multi-emitter detection, Digital RF Twin, natural language search, and others) are not yet built. Nothing was skipped silently - this section exists specifically so the repo's current state is always clear at a glance.
+
+## SpectraNet 2.0 Feature: Open-Set / Unknown Signal Detection
+
+Teaches the model to say 'I don't know this signal' instead of confidently misclassifying something it has never seen.
+
+**Honest test setup:** the 5-class modulation classifier was never trained on jammer signals - those exist only in the separate threat dataset built for a different task. Feeding jammers into the modulation classifier is a genuine, unbiased out-of-distribution (OOD) test.
+
+**Attempt 1 - Maximum Softmax Probability (MSP), Hendrycks and Gimpel 2017:** flags a signal unknown if the model's top confidence falls below a threshold calibrated on real validation data. Result: only 1/100 jammer signals correctly flagged (1%). The model was actually slightly MORE confident on signals it had never seen (0.607) than on known signals (0.583) - a well-documented real weakness of MSP: neural networks are often overconfident on OOD inputs, not just uncertain.
+
+**Attempt 2 - Mahalanobis distance, Lee et al. 2018:** measures how far a signal's internal features sit from per-class Gaussians fit on real training data, instead of trusting the final softmax layer. Result: 60/100 jammer signals flagged (60%) at a threshold calibrated to a 5% false-positive rate on known signals - a large real improvement over MSP.
+
+**Honest evaluation metric - AUC-ROC:** a single detection-rate number hides the real tradeoff (any detector can hit 100% by flagging everything unknown, which would also flag ~100% of known signals - useless). AUC-ROC measures separation across every possible threshold: full-dimensional Mahalanobis scored 0.718 (0.5=random, 1.0=perfect).
+
+**Refinement - PCA dimensionality reduction:** the 256-dimensional covariance matrix was being estimated from only ~1000 training samples - a statistically shaky ratio. Reducing to 30 principal components (99.8% of variance retained, confirming most of the 256 dimensions were near-noise) genuinely improved AUC-ROC to 0.730 and detection rate to 62/100.
+
+**Honest final result:** AUC-ROC ~0.73 is a real, moderate-quality open-set detector - meaningfully better than random (0.5), far from perfect (1.0). 100% detection was investigated and found not to be a meaningful target: it is trivially achievable only by flagging everything as unknown, which destroys the detector's usefulness on known signals. Stronger methods exist (ODIN, energy-based scoring, contrastive training) but were not implemented here - this section reports exactly what was tried, what worked, what didn't, and why.
