@@ -19,3 +19,6 @@ onnxruntime>=1.16
 
 # Dev / testing
 pytest>=7.4
+
+# AI-native platform layer (context/store)
+pydantic>=2.0
