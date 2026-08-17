@@ -335,3 +335,39 @@ Detects and classifies MULTIPLE simultaneous signals in a single capture window,
 **Per-emitter classification - honest limitation:** after detecting and isolating each emitter (bandpass filtering + inverse FFT, verified ~94% correlation with the true original signal), classifying each isolated signal with the existing modulation model succeeded 14/40 times (35%) - better than chance (20%) but clearly limited. The model showed a visible bias toward predicting 'qam16' regardless of the true class. Root cause: isolation is imperfect (94% correlation, not 100%) and the classifier was trained on clean, full-bandwidth signals - the missing 6% and altered spectral shape from bandpass filtering is evidently enough to confuse it. Fixing this would need either a classifier trained specifically on isolated/filtered signal characteristics, or a less aggressive isolation filter - not implemented here.
 
 **Honest summary:** multi-emitter COUNT detection is a genuine, reliable success (100%). Per-emitter re-classification after isolation is a real, harder open problem, reported honestly rather than hidden or oversold.
+
+---
+
+## SpectraNet 3.0: AI-Native RF Intelligence Platform (In Progress)
+
+Building toward an AI-native platform layer on top of the ML system above -
+context/lineage/trust modeling, RAG, MCP tools, and an evaluating AI agent -
+without modifying any of the existing ML pipeline, training code, or served API.
+
+**Build philosophy:** each phase is implemented completely, tested, and
+committed before the next one begins. See `docs/HANDOFF-phase-0-3.md` for
+the full phased plan and current status.
+
+### Status
+
+| Phase | What | Status |
+|---|---|---|
+| 0 | Baseline freeze & verification | Done |
+| 1 | Platform boundary (context/, knowledge/, agents/, mcp/, evaluation/, reliability/, lineage/, integrations/) | Done |
+| 2 | Domain/context model (Signal, Detection, Prediction, Model, Dataset, Experiment, Explanation, Document, Evaluation, TrustSignal) | Done |
+| 3 | Metadata store (SQLite now, Postgres-compatible schema, one-line swap later) | Done |
+| 4 | Semantic metadata | Not started |
+| 5 | Lineage | Not started |
+| 6 | Trust & reliability layer | Not started |
+| 7 | Knowledge ingestion | Not started |
+| 8 | Context-aware RAG | Not started |
+| 9 | MCP tool layer | Not started |
+| 10 | AI agent / copilot | Not started |
+| 11-20 | Evaluation, integrations, APIs, observability, testing, governance, UI, end-to-end demo, docs | Not started |
+
+**Tests:** 28/28 passing (`pytest tests/ -v`) - 12 original ML pipeline
+tests + 16 new context-layer tests, zero regressions.
+
+**What was NOT touched:** `spectranet/data/`, `spectranet/models/`,
+`spectranet/training/`, `spectranet/deploy/`, `spectranet/serve/` -
+the entire existing ML platform above is unmodified.
