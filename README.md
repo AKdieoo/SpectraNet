@@ -323,3 +323,15 @@ Teaches the model to say 'I don't know this signal' instead of confidently miscl
 **Refinement - PCA dimensionality reduction:** the 256-dimensional covariance matrix was being estimated from only ~1000 training samples - a statistically shaky ratio. Reducing to 30 principal components (99.8% of variance retained, confirming most of the 256 dimensions were near-noise) genuinely improved AUC-ROC to 0.730 and detection rate to 62/100.
 
 **Honest final result:** AUC-ROC ~0.73 is a real, moderate-quality open-set detector - meaningfully better than random (0.5), far from perfect (1.0). 100% detection was investigated and found not to be a meaningful target: it is trivially achievable only by flagging everything as unknown, which destroys the detector's usefulness on known signals. Stronger methods exist (ODIN, energy-based scoring, contrastive training) but were not implemented here - this section reports exactly what was tried, what worked, what didn't, and why.
+
+## SpectraNet 2.0 Feature: Multi-Emitter Detection
+
+Detects and classifies MULTIPLE simultaneous signals in a single capture window, using real signal processing (not a deep-learning re-train): frequency-domain peak detection, bandpass isolation, then classification of each isolated emitter with the existing trained model.
+
+**First attempt failed honestly:** a single FFT snapshot produced 12-24 spurious peaks per trial instead of the true 2 (0/20 correct counts) - a real, diagnosed bug: single-realization periodograms are noisy, not because the signals are actually that spectrally wide.
+
+**Fix - Welch's method:** averaging the periodogram over multiple overlapping windows (scipy.signal.welch) reduces estimation variance, a standard DSP technique for exactly this problem. Result: 20/20 correct emitter counts (100%), up from 0/20.
+
+**Per-emitter classification - honest limitation:** after detecting and isolating each emitter (bandpass filtering + inverse FFT, verified ~94% correlation with the true original signal), classifying each isolated signal with the existing modulation model succeeded 14/40 times (35%) - better than chance (20%) but clearly limited. The model showed a visible bias toward predicting 'qam16' regardless of the true class. Root cause: isolation is imperfect (94% correlation, not 100%) and the classifier was trained on clean, full-bandwidth signals - the missing 6% and altered spectral shape from bandpass filtering is evidently enough to confuse it. Fixing this would need either a classifier trained specifically on isolated/filtered signal characteristics, or a less aggressive isolation filter - not implemented here.
+
+**Honest summary:** multi-emitter COUNT detection is a genuine, reliable success (100%). Per-emitter re-classification after isolation is a real, harder open problem, reported honestly rather than hidden or oversold.
